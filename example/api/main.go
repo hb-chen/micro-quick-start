@@ -23,6 +23,9 @@ import (
 	"github.com/micro/go-micro/config"
 	"github.com/micro/go-micro/config/source/consul"
 
+	tracer "github.com/hb-go/micro-quick-start/pkg/opentracing"
+	"github.com/micro/go-plugins/wrapper/trace/opentracing"
+
 	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
 
@@ -92,6 +95,17 @@ func main() {
 		micro.WrapClient(ratelimit.NewClientWrapper(10)),
 		micro.WrapHandler(ratelimit.NewHandlerWrapper(10)),
 		micro.WrapClient(NewClientWrapper()),
+	)
+
+	// 链路追踪
+	t, closer, err := tracer.NewJaegerTracer("example.api", "127.0.0.1:6831")
+	if err != nil {
+		log.Fatalf("opentracing tracer create error:%v", err)
+	}
+	defer closer.Close()
+	service.Init(
+		micro.WrapCall(opentracing.NewCallWrapper(t)),
+		micro.WrapHandler(opentracing.NewHandlerWrapper(t)),
 	)
 
 	// Register Handler

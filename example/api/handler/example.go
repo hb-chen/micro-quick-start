@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"github.com/micro/go-micro/util/log"
+	"sync"
 
 	"github.com/hb-go/micro-quick-start/example/api/client"
 	api "github.com/micro/go-micro/api/proto"
 	mc "github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/client/selector"
 	"github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/util/log"
 
 	example "github.com/hb-go/micro-quick-start/example/srv/proto/example"
 )
@@ -37,32 +38,50 @@ func (e *Example) Call(ctx context.Context, req *api.Request, rsp *api.Response)
 	}
 
 	// make request
-	response, err := exampleClient.Call(ctx, &example.Request{
-		Name: extractValue(req.Post["name"]) + " 1",
-	})
-	if err != nil {
-		return errors.InternalServerError("go.micro.api.example.example.call", err.Error())
-	}
+	responses := []*example.Response{}
+	mtx := sync.RWMutex{}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		response, err := exampleClient.Call(
+			ctx,
+			&example.Request{
+				Name: extractValue(req.Post["name"]) + " 1",
+			},
+		)
+		if err != nil {
+			log.Logf("go.micro.api.example.example.call", err.Error())
+		} else {
+			mtx.Lock()
+			responses = append(responses, response)
+			mtx.Unlock()
+		}
+		wg.Done()
+	}()
 
-	response1, err := exampleClient.Call(
-		ctx,
-		&example.Request{
-			Name: extractValue(req.Post["name"]) + " 2",
-		},
-		mc.WithSelectOption(
-			selector.WithFilter(
-				selector.FilterLabel("key", "value1"),
+	wg.Add(1)
+	go func() {
+		response1, err := exampleClient.Call(
+			ctx,
+			&example.Request{
+				Name: extractValue(req.Post["name"]) + " 2",
+			},
+			mc.WithSelectOption(
+				selector.WithFilter(
+					selector.FilterLabel("key", "value1"),
+				),
 			),
-		),
-	)
-	if err != nil {
-		return errors.InternalServerError("go.micro.api.example.example.call", err.Error())
-	}
-
-	responses := []*example.Response{
-		response,
-		response1,
-	}
+		)
+		if err != nil {
+			log.Logf("go.micro.api.example.example.call", err.Error())
+		} else {
+			mtx.Lock()
+			responses = append(responses, response1)
+			mtx.Unlock()
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 
 	b, _ := json.Marshal(responses)
 

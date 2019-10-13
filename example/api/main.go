@@ -3,6 +3,7 @@ package main
 import (
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/hb-go/micro-quick-start/example/api/client"
 	"github.com/hb-go/micro-quick-start/example/api/handler"
@@ -61,6 +62,16 @@ func main() {
 		}
 		panic(err)
 	}()
+
+	// 重试&超时
+	service.Init(
+		func(o *micro.Options) {
+			o.Client.Init(
+				mc.Retries(3),
+				mc.RequestTimeout(time.Millisecond*100),
+			)
+		},
+	)
 
 	// Register Handler
 	example.RegisterExampleHandler(

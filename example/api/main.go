@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/micro/go-micro/util/log"
 
-	"github.com/micro/go-micro"
-	"github.com/hb-go/micro-quick-start/example/api/handler"
 	"github.com/hb-go/micro-quick-start/example/api/client"
+	"github.com/hb-go/micro-quick-start/example/api/handler"
+	"github.com/micro/go-micro"
 
-	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
+	"github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
 
 func main() {

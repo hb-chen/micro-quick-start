@@ -6,9 +6,9 @@ import (
 	"github.com/micro/go-micro/util/log"
 
 	"github.com/hb-go/micro-quick-start/example/api/client"
-	"github.com/micro/go-micro/errors"
 	api "github.com/micro/go-micro/api/proto"
-	example "path/to/service/proto/example"
+	"github.com/micro/go-micro/errors"
+	"path/to/service/proto/example"
 )
 
 type Example struct{}

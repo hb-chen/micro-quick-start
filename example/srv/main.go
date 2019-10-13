@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/micro/go-micro/util/log"
-	"github.com/micro/go-micro"
 	"github.com/hb-go/micro-quick-start/example/srv/handler"
 	"github.com/hb-go/micro-quick-start/example/srv/subscriber"
+	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/util/log"
 
-	example "github.com/hb-go/micro-quick-start/example/srv/proto/example"
+	"github.com/hb-go/micro-quick-start/example/srv/proto/example"
 )
 
 func main() {

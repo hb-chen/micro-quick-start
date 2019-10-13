@@ -5,10 +5,10 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
-	example "path/to/service/proto/example"
+	"path/to/service/proto/example"
 )
 
-type exampleKey struct {}
+type exampleKey struct{}
 
 // FromContext retrieves the client from the Context
 func ExampleFromContext(ctx context.Context) (example.ExampleService, bool) {

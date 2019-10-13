@@ -18,6 +18,10 @@ func main() {
 
 	// Initialise service
 	service.Init()
+	service.Init(
+		micro.Name("go.micro.srv.example"),
+		micro.Version("latest"),
+	)
 
 	// Register Handler
 	example.RegisterExampleHandler(service.Server(), new(handler.Example))

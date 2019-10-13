@@ -21,7 +21,11 @@ func main() {
 	)
 
 	// Initialise service
+	service.Init()
 	service.Init(
+		micro.Name("go.micro.api.example"),
+		micro.Version("latest"),
+
 		// create wrap for the Example srv client
 		micro.WrapHandler(client.ExampleWrapper(service)),
 	)

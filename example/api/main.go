@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/micro/go-micro/util/log"
+	"net"
+	"net/http"
 
 	"github.com/hb-go/micro-quick-start/example/api/client"
 	"github.com/hb-go/micro-quick-start/example/api/handler"
@@ -10,6 +11,9 @@ import (
 	ha "github.com/micro/go-micro/api/handler/api"
 	mc "github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/client/selector"
+	"github.com/micro/go-micro/util/log"
+	"github.com/micro/go-plugins/wrapper/monitoring/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
@@ -41,6 +45,22 @@ func main() {
 			})
 		},
 	)
+
+	// 监控
+	service.Init(
+		micro.WrapHandler(prometheus.NewHandlerWrapper()),
+	)
+	go func() {
+		ls, err := net.Listen("tcp", ":9091")
+		if err == nil {
+			err := http.Serve(ls, promhttp.Handler())
+			if err != nil {
+			}
+			panic(err)
+		} else {
+		}
+		panic(err)
+	}()
 
 	// Register Handler
 	example.RegisterExampleHandler(

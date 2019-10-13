@@ -18,7 +18,7 @@ var count int
 func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.Response) error {
 	log.Log("Received Example.Call request")
 	count++
-	log.Log("Received Example.Call request, count: %v", count)
+	log.Logf("Received Example.Call request, count: %d", count)
 
 	if count%4 == 0 {
 		log.Log("Received Example.Call request 错误")
@@ -26,7 +26,7 @@ func (e *Example) Call(ctx context.Context, req *example.Request, rsp *example.R
 	}
 
 	log.Log("Received Example.Call request 超时")
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 10)
 
 	rsp.Msg = "Hello " + req.Name + " v1 value1"
 	return nil

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"time"
@@ -15,6 +16,9 @@ import (
 	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-plugins/wrapper/monitoring/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/afex/hystrix-go/hystrix"
+	"github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 
 	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
@@ -73,6 +77,13 @@ func main() {
 		},
 	)
 
+	// 限流&熔断
+	service.Init(
+		micro.WrapClient(ratelimit.NewClientWrapper(10)),
+		micro.WrapHandler(ratelimit.NewHandlerWrapper(10)),
+		micro.WrapClient(NewClientWrapper()),
+	)
+
 	// Register Handler
 	example.RegisterExampleHandler(
 		service.Server(),
@@ -91,5 +102,31 @@ func main() {
 	// Run service
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+type clientWrapper struct {
+	mc.Client
+}
+
+func (c *clientWrapper) Call(ctx context.Context, req mc.Request, rsp interface{}, opts ...mc.CallOption) error {
+	return hystrix.Do(req.Service()+"."+req.Endpoint(), func() error {
+		if cir, ok, _ := hystrix.GetCircuit(req.Service() + "." + req.Endpoint()); ok {
+			log.Logf("circuit: %v %v", cir.Name, cir.AllowRequest())
+		} else {
+			log.Logf("circuit: %v %v", cir.Name, cir.AllowRequest())
+		}
+
+		return c.Client.Call(ctx, req, rsp, opts...)
+	}, func(err error) error {
+		log.Logf("fallback: %v", err)
+		return err
+	})
+}
+
+// NewClientWrapper returns a hystrix client Wrapper.
+func NewClientWrapper() mc.Wrapper {
+	return func(c mc.Client) mc.Client {
+		return &clientWrapper{c}
 	}
 }

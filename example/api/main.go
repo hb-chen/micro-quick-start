@@ -6,10 +6,11 @@ import (
 	"github.com/hb-go/micro-quick-start/example/api/client"
 	"github.com/hb-go/micro-quick-start/example/api/handler"
 	"github.com/micro/go-micro"
-
 	"github.com/micro/go-micro/api"
 	ha "github.com/micro/go-micro/api/handler/api"
-	
+	mc "github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/client/selector"
+
 	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
 
@@ -28,6 +29,17 @@ func main() {
 
 		// create wrap for the Example srv client
 		micro.WrapHandler(client.ExampleWrapper(service)),
+	)
+
+	// 筛选器
+	service.Init(
+		func(options *micro.Options) {
+			options.Client.Init(func(options *mc.Options) {
+				options.CallOptions.SelectOptions =
+					append(options.CallOptions.SelectOptions,
+						selector.WithFilter(selector.FilterVersion("v1")))
+			})
+		},
 	)
 
 	// Register Handler

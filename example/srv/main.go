@@ -13,14 +13,18 @@ func main() {
 	// New Service
 	service := micro.NewService(
 		micro.Name("go.micro.srv.example"),
-		micro.Version("latest"),
+		micro.Version("v1"),
 	)
 
 	// Initialise service
+	metadata := make(map[string]string)
+	metadata["key"] = "value1"
+
 	service.Init()
 	service.Init(
 		micro.Name("go.micro.srv.example"),
-		micro.Version("latest"),
+		micro.Version("v1"),
+		micro.Metadata(metadata),
 	)
 
 	// Register Handler

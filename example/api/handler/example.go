@@ -8,7 +8,8 @@ import (
 	"github.com/hb-go/micro-quick-start/example/api/client"
 	api "github.com/micro/go-micro/api/proto"
 	"github.com/micro/go-micro/errors"
-	"path/to/service/proto/example"
+
+	example "github.com/hb-go/micro-quick-start/example/srv/proto/example"
 )
 
 type Example struct{}

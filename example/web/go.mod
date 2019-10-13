@@ -1,1 +1,0 @@
-module github.com/hb-go/micro-quick-start/example/web

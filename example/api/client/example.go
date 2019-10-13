@@ -5,7 +5,8 @@ import (
 
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/server"
-	"path/to/service/proto/example"
+
+	example "github.com/hb-go/micro-quick-start/example/srv/proto/example"
 )
 
 type exampleKey struct{}
@@ -18,7 +19,7 @@ func ExampleFromContext(ctx context.Context) (example.ExampleService, bool) {
 
 // Client returns a wrapper for the ExampleClient
 func ExampleWrapper(service micro.Service) server.HandlerWrapper {
-	client := example.NewExampleService("go.micro.srv.template", service.Client())
+	client := example.NewExampleService("go.micro.srv.example", service.Client())
 
 	return func(fn server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {

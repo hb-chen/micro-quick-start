@@ -17,7 +17,7 @@ go-micro微服务快速开始教程
 - k8s部署
 
 ## micro自定义
-`micro`最为网关往往需要自定义，`micro`提供了`plugin`的自定义，以下是部分参考，如增加组件`tcp`、`kubernetes`，使用`go-plugins`中已有的`micro/metrics`插件，
+`micro`做为网关往往需要自定义，`micro`提供了`plugin`的自定义，以下是部分参考，如增加组件`tcp`、`kubernetes`，使用`go-plugins`中已有的`micro/metrics`插件，
 以及完全自定义一个`metrics`插件。
 ```go
 package main

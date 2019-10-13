@@ -20,10 +20,20 @@ import (
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/micro/go-plugins/wrapper/ratelimiter/uber"
 
+	"github.com/micro/go-micro/config"
+	"github.com/micro/go-micro/config/source/consul"
+
 	example "github.com/hb-go/micro-quick-start/example/api/proto/example"
 )
 
 func main() {
+	w := conf()
+	if w != nil {
+		defer func() {
+			w.Stop()
+		}()
+	}
+
 	// New Service
 	service := micro.NewService(
 		micro.Name("go.micro.api.example"),
@@ -103,6 +113,41 @@ func main() {
 	if err := service.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func conf() config.Watcher {
+	consulSource := consul.NewSource(
+		consul.WithPrefix("/micro/config"),
+		consul.StripPrefix(true),
+	)
+	// 加载配置
+	err := config.Load(consulSource)
+	if err != nil {
+		log.Logf("config load error: %v", err)
+	} else {
+		log.Logf("config data: %v", string(config.Bytes()))
+	}
+
+	// 监控动态配置
+	w, err := config.Watch("key1")
+	if err == nil {
+		go func() {
+			for {
+				if v, err := w.Next(); err == nil {
+					log.Logf("config : %v", string(v.Bytes()))
+				} else {
+					log.Log("config error: %v", err)
+					return
+				}
+			}
+		}()
+
+		return w
+	} else {
+		log.Logf("config watch error: %v", err)
+	}
+
+	return nil
 }
 
 type clientWrapper struct {

@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: default
+  name: example-srv
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: example-srv
+        micro: go.micro.srv.example
+    spec:
+      serviceAccountName: micro-services
+      containers:
+      - name: example-srv
+        resources:
+          requests:
+            cpu: "35m"
+        command: [
+          "/example-srv",
+          "--registry=kubernetes",
+          "--server=rpc",
+          "--transport=tcp",
+          "--selector=cache",
+          "--server_address=0.0.0.0:9090",
+          "--broker_address=0.0.0.0:10001"
+        ]
+        image: hbchen/micro-example-srv:v0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9090
+          name: srv-port

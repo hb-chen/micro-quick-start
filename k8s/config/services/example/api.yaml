@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: default
+  name: example-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: example-api
+    spec:
+      serviceAccountName: micro-services
+      containers:
+      - name: example-api
+        resources:
+          requests:
+            cpu: "20m"
+        command: [
+          "/example-api",
+          "--registry=kubernetes",
+          "--server=rpc",
+          "--transport=tcp",
+          "--selector=cache",
+          "--server_address=0.0.0.0:9090",
+          "--broker_address=0.0.0.0:10001"
+        ]
+        image: hbchen/micro-example-api:v0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9090
+          name: api-port
